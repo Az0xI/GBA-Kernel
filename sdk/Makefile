@@ -1,15 +1,15 @@
 CC	=	ghc
 SRC	=	src/qeunelle.hs
-OBJ	=	$(SRC:.hs=.o)
+OBJ	=	$(SRC:.hs=.o) $(SRC:.hs=.hi)
 NAME	=	qeunelle
 
 all:	$(NAME)
 
-$(NAME):	$(OBJ)
+$(NAME):
 	$(CC) -o $(NAME) $(SRC)
 
 clean:
-	rm -f *.o *.hi
+	rm -f $(OBJ)
 
 fclean:	clean
 	rm -f $(NAME)
