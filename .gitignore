@@ -1,3 +1,4 @@
 *.o
 *.hi
 qeunelle
+/sdk/dist-newstyle
