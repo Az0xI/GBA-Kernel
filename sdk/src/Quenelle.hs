@@ -2,8 +2,10 @@ module Quenelle where
 
 import System.IO -- IO ()
 import Data.Hex (hex)
-import Data.Char (ord)
+import Data.Char (ord, intToDigit)
 import Data.Bits
+import Data.Word
+import Numeric (showIntAtBase)
 
 toLittleEndian :: String -> String
 toLittleEndian [] = []
@@ -16,17 +18,15 @@ readBytes i hdl = do
   b <- readBytes (i - 1) hdl
   return (a : b)
 
-sumString :: String -> Int
+sumString :: String -> Word8
 sumString [] = 0
-sumString (x:xs) = negate $ (ord x) - sumString xs;
+sumString (x:xs) = 0 - (fromIntegral (ord x) - sumString xs);
 
-algoCheckSum :: Handle -> IO Int
+algoCheckSum :: Handle -> IO Word8
 algoCheckSum hdl = do
   hSeek hdl AbsoluteSeek 0x0a0;
   algo <- readBytes 29 hdl;
-  let sumAlgo = sumString algo
-  putStrLn $ show sumAlgo
-  return $ (.&.) (sumAlgo - 0x19) 0x0FF
+  return $ (sumString algo - 0x19) .&. 0x0FF
 
 readHeader :: Handle -> String -> IO ()
 readHeader hdl "title" = do
@@ -42,7 +42,7 @@ readHeader hdl "checkSum" = do
   content <- readBytes 1 hdl;
   algo <- algoCheckSum hdl;
   putStrLn $ "File check sum: " ++ hex (toLittleEndian content);
-  putStrLn $ "Algo check sum: " ++ show algo;
+  putStrLn $ "Algo check sum: " ++ showIntAtBase 16 intToDigit algo "";
 readHeader hdl "fixedValue" = do
   hSeek hdl AbsoluteSeek 0x0b2;
   content <- readBytes 1 hdl;
